@@ -1,0 +1,30 @@
+name = "cf-n8n-proxy"
+main = "src/index.ts"
+compatibility_date = "2024-03-04"
+compatibility_flags = [ "nodejs_compat", "nodejs_als" ]
+workers_dev = true
+logpush = true
+
+[[queues.producers]]
+queue = "cf-n8n-proxy"
+binding = "ERROR_QUEUE"
+
+[[queues.consumers]]
+queue = "cf-n8n-proxy"
+max_batch_size = 100
+max_batch_timeout = 30
+
+[vars]
+ENVIRONMENT = "dev"
+PROXY_DOMAIN = "https://example.com"
+
+[env.production]
+workers_dev = false
+
+routes = [
+    { pattern = "<your custom domain>", zone_name = "<your zone name>", custom_domain = true },
+]
+
+[env.production.vars]
+ENVIRONMENT = "production"
+PROXY_DOMAIN = "https://example.com"
