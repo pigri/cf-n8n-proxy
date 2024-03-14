@@ -10,10 +10,10 @@
     "eslint-plugin-prettier": "5.1.3",
     "prettier": "3.2.5",
     "typescript": "5.4.2",
-    "wrangler": "3.32.0"
+    "wrangler": "3.33.0"
   },
   "dependencies": {
     "itty-fetcher": "^0.9.4",
-    "itty-router": "4.0.27"
+    "itty-router": "4.2.1"
   }
 }
