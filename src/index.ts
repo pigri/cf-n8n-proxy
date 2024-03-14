@@ -5,7 +5,7 @@ const { preflight, corsify } = createCors({
 });
 const router = Router();
 
-async function proxy (request: Request, env: Env) {
+export async function proxy (request: Request, env: Env) {
   let url = new URL(request.url);
   const proxyUrl = `${env.PROXY_DOMAIN}${url.pathname}`;
   switch (request.method) {
@@ -48,7 +48,7 @@ async function proxy (request: Request, env: Env) {
   }
 }
 
-async function createNewRequest(request: Request): Promise<Request> {
+export async function createNewRequest(request: Request): Promise<Request> {
   const { url, method, headers } = request;
   if (method === 'GET' || method === 'HEAD') {
     return new Request(url, { method, headers });

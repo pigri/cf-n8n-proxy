@@ -27,6 +27,8 @@ binding = "ERROR_QUEUE"
 queue = "cf-n8n-proxy-production"
 max_batch_size = 100
 max_batch_timeout = 30
+max_retries = 100
+dead_letter_queue = "dlq-cf-n8n-proxy-production"
 
 [env.production]
 workers_dev = false

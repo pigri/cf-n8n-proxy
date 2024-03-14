@@ -35,6 +35,7 @@ cp wrangler.toml_example wrangler.toml
 ### Create queue
 ```
 wrangler queues create cf-n8n-proxy-production -e production
+wrangler queues create dlq-cf-n8n-proxy-production -e production
 ```
 
 ### Deploy your service
