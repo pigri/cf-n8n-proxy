@@ -14,6 +14,6 @@
   },
   "dependencies": {
     "itty-fetcher": "^0.9.4",
-    "itty-router": "4.0.27"
+    "itty-router": "4.2.1"
   }
 }
