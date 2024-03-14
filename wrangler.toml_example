@@ -3,7 +3,7 @@ main = "src/index.ts"
 compatibility_date = "2024-03-04"
 compatibility_flags = [ "nodejs_compat", "nodejs_als" ]
 workers_dev = true
-logpush = true
+#logpush = true
 
 [[queues.producers]]
 queue = "cf-n8n-proxy"
@@ -18,11 +18,22 @@ max_batch_timeout = 30
 ENVIRONMENT = "dev"
 PROXY_DOMAIN = "https://example.com"
 
+
+[[env.production.queues.producers]]
+queue = "cf-n8n-proxy-production"
+binding = "ERROR_QUEUE"
+
+[[env.production.queues.consumers]]
+queue = "cf-n8n-proxy-production"
+max_batch_size = 100
+max_batch_timeout = 30
+
 [env.production]
 workers_dev = false
 
 routes = [
-    { pattern = "<your custom domain>", zone_name = "<your zone name>", custom_domain = true },
+    { pattern = "example.com/webhook/*", zone_name = "papp.ai" },
+    { pattern = "example.com/webhook-test/*", zone_name = "papp.ai" },
 ]
 
 [env.production.vars]

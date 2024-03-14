@@ -1,7 +1,7 @@
-import { error, Router, createCors } from 'itty-router';
+import { createCors, error, Router } from 'itty-router';
 
 const { preflight, corsify } = createCors({
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
 });
 const router = Router();
 
@@ -22,6 +22,26 @@ async function proxy (request: Request, env: Env) {
         method: request.method,
         body: request.body,
         headers: request.headers,
+      });
+    case 'OPTIONS':
+      return new Response(null, {
+        status: 204,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
+          'Access-Control-Allow-Headers': '*',
+          'Access-Control-Max-Age': '86400',
+        },
+      });
+    case 'HEAD':
+      return new Response(null, {
+        status: 200,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
+          'Access-Control-Allow-Headers': '*',
+          'Access-Control-Max-Age': '86400',
+        },
       });
     default:
       return error(405);
@@ -53,26 +73,37 @@ type MessageBatch = {
 router
   .all('*', preflight)
   .all('/webhook/:id', async (request: Request, env: Env, _: ExecutionContext) => {
-    const newRequest = await createNewRequest(request);
-
-    const response = await proxy(newRequest, env);
-    const status = response.status;
-    if (status >= 500 && status < 600) {
-      await env.ERROR_QUEUE.send(JSON.stringify({
-        url: request.url,
-        method: request.method,
-        headers: request.headers,
-        body: request.body,
-      }));
-      return error(202, 'Request sent to error queue.')
+    try {
+      const newRequest = await createNewRequest(request);
+      const response = await proxy(newRequest, env);
+      const responseClone = response.clone();
+      const status = response.status;
+      if (status >= 500 && status < 600) {
+        await env.ERROR_QUEUE.send(JSON.stringify({
+          url: request.url,
+          method: request.method,
+          headers: request.headers,
+          body: request.body,
+        }));
+        return error(202, 'Request sent to error queue.')
+      }
+      console.log(JSON.stringify({ status: response.status, statusText: response.statusText, headers: response.headers, body: await responseClone.text()}));
+      return response;
+    } catch (e) {
+      console.log(JSON.stringify(e));
+      return error(500, 'Something went wrong');
     }
-    return response;
-
   })
   .all(`/webhook-test/:id`, async (request: Request, env: Env, _: ExecutionContext) => {
-  const response = await proxy(request, env);
-  console.log('Response:', response);
-  return response;
+    try {
+      const response = await proxy(request, env);
+      const responseClone = response.clone();
+      console.log(JSON.stringify({ status: response.status, statusText: response.statusText, headers: response.headers, body: await responseClone.text()}));
+      return response;
+    } catch (e) {
+      console.log(JSON.stringify(e));
+      return error(500, 'Something went wrong');
+    }
   })
   .all('*', () => error(404));
 
@@ -90,7 +121,7 @@ export default {
           body: json.body || null,
         });
         const response = await proxy(request, env);
-        console.log(response);
+        console.log(JSON.stringify(response));
       } catch (error) {
         batch.retryAll();
       }
