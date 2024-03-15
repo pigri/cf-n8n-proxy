@@ -1,11 +1,34 @@
 import { createCors, error, Router } from 'itty-router';
+import { hasher } from 'cf-workers-hash';
 
 const { preflight, corsify } = createCors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
 });
 const router = Router();
 
-export async function proxy (request: Request, env: Env) {
+async function deduplication(request: Request, env: Env) {
+  if (!env.DEDUPLICATION) return false;
+  try {
+    const url = new URL(request.url);
+    const body = await request.text();
+    const contentLength = new TextEncoder().encode(body).length;
+    const key = await hasher(`${request.method}-${url.pathname}-${body}-${contentLength}`, 'SHA-256');
+    const ttl = env.DEDUPLICATION_TTL || 60;
+    const value = await env.DEDUPLICATION_KV.get(key);
+    if (value === null) {
+      console.debug(`Deduplication key not found: ${key}`)
+      await env.DEDUPLICATION_KV.put(key, 't', { expirationTtl: ttl });
+      return false;
+    }
+    console.debug(`Deduplication key found: ${key}`)
+    return true;
+  } catch (e) {
+    console.error(JSON.stringify(e));
+    return false;
+  }
+}
+
+async function proxy (request: Request, env: Env) {
   let url = new URL(request.url);
   const proxyUrl = `${env.PROXY_DOMAIN}${url.pathname}`;
   switch (request.method) {
@@ -18,6 +41,12 @@ export async function proxy (request: Request, env: Env) {
     case 'PUT':
     case 'PATCH':
     case 'DELETE':
+      if (await deduplication(request, env)) {
+        return new Response(null, {
+          status: 202,
+          statusText: 'Accepted',
+        });
+      }
       return await fetch(proxyUrl, {
         method: request.method,
         body: request.body,
@@ -48,7 +77,7 @@ export async function proxy (request: Request, env: Env) {
   }
 }
 
-export async function createNewRequest(request: Request): Promise<Request> {
+async function createNewRequest(request: Request): Promise<Request> {
   const { url, method, headers } = request;
   if (method === 'GET' || method === 'HEAD') {
     return new Request(url, { method, headers });
@@ -87,10 +116,10 @@ router
         }));
         return error(202, 'Request sent to error queue.')
       }
-      console.log(JSON.stringify({ status: response.status, statusText: response.statusText, headers: response.headers, body: await responseClone.text()}));
+      console.info(JSON.stringify({ status: response.status, statusText: response.statusText, headers: response.headers, body: await responseClone.text()}));
       return response;
     } catch (e) {
-      console.log(JSON.stringify(e));
+      console.error(JSON.stringify(e));
       return error(500, 'Something went wrong');
     }
   })
@@ -98,10 +127,10 @@ router
     try {
       const response = await proxy(request, env);
       const responseClone = response.clone();
-      console.log(JSON.stringify({ status: response.status, statusText: response.statusText, headers: response.headers, body: await responseClone.text()}));
+      console.info(JSON.stringify({ status: response.status, statusText: response.statusText, headers: response.headers, body: await responseClone.text()}));
       return response;
     } catch (e) {
-      console.log(JSON.stringify(e));
+      console.error(JSON.stringify(e));
       return error(500, 'Something went wrong');
     }
   })
@@ -121,7 +150,7 @@ export default {
           body: json.body || null,
         });
         const response = await proxy(request, env);
-        console.log(JSON.stringify(response));
+        console.error(JSON.stringify(response));
       } catch (error) {
         batch.retryAll();
       }

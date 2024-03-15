@@ -14,10 +14,15 @@ queue = "cf-n8n-proxy"
 max_batch_size = 100
 max_batch_timeout = 30
 
+[[kv_namespaces]]
+binding = "DEDUPLICATION_KV"
+id = "<mykvid>"
+
 [vars]
 ENVIRONMENT = "dev"
 PROXY_DOMAIN = "https://example.com"
-
+DEDUPLICATION = false
+DEDUPLICATION_TTL = 60
 
 [[env.production.queues.producers]]
 queue = "cf-n8n-proxy-production"
@@ -30,14 +35,20 @@ max_batch_timeout = 30
 max_retries = 100
 dead_letter_queue = "dlq-cf-n8n-proxy-production"
 
+[[env.production.kv_namespaces]]
+binding = "DEDUPLICATION_KV"
+id = "<mykvid>"
+
 [env.production]
 workers_dev = false
 
 routes = [
-    { pattern = "example.com/webhook/*", zone_name = "papp.ai" },
-    { pattern = "example.com/webhook-test/*", zone_name = "papp.ai" },
+    { pattern = "example.com/webhook/*", zone_name = "example.com" },
+    { pattern = "example.com/webhook-test/*", zone_name = "example.com" },
 ]
 
 [env.production.vars]
 ENVIRONMENT = "production"
 PROXY_DOMAIN = "https://example.com"
+DEDUPLICATION = false
+DEDUPLICATION_TTL = 60
