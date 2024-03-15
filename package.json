@@ -4,7 +4,7 @@
     "dev": "wrangler dev"
   },
   "devDependencies": {
-    "@types/node": "20.11.27",
+    "@types/node": "20.11.28",
     "@cloudflare/workers-types": "4.20240312.0",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "5.1.3",
