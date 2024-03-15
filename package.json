@@ -10,7 +10,7 @@
     "eslint-plugin-prettier": "5.1.3",
     "prettier": "3.2.5",
     "typescript": "5.4.2",
-    "wrangler": "3.34.1"
+    "wrangler": "3.34.2"
   },
   "dependencies": {
     "itty-fetcher": "^0.9.4",
