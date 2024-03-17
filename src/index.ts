@@ -1,5 +1,5 @@
 import { createCors, error, Router } from 'itty-router';
-import { hasher } from 'cf-workers-hash';
+import { xxhash64 } from 'cf-workers-hash';
 
 const { preflight, corsify } = createCors({
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
@@ -12,7 +12,7 @@ async function deduplication(request: Request, env: Env) {
     const url = new URL(request.url);
     const body = await request.text();
     const contentLength = new TextEncoder().encode(body).length;
-    const key = await hasher(`${request.method}-${url.pathname}-${body}-${contentLength}`, 'SHA-256');
+    const key = await xxhash64(`${request.method}-${url.pathname}-${body}-${contentLength}`);
     const ttl = env.DEDUPLICATION_TTL || 60;
     const value = await env.DEDUPLICATION_KV.get(key);
     if (value === null) {
