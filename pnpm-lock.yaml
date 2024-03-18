@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   cf-workers-hash:
-    specifier: 1.0.2
-    version: 1.0.2
+    specifier: 1.0.3
+    version: 1.0.3
   itty-fetcher:
     specifier: 0.9.4
     version: 0.9.4
@@ -612,14 +612,13 @@ packages:
       - supports-color
     dev: true
 
-  /cf-workers-hash@1.0.2:
-    resolution: {integrity: sha512-0nakvkhSddOkRmpsuF7QaDQ6/nPwpEsmfxuhwdwFnfjT0DGle0H904gVtIupJFf3ZYBRxmsp7Jl25J0Ui6C7yw==}
+  /cf-workers-hash@1.0.3:
+    resolution: {integrity: sha512-VPzTxrW96hZkPNepGHGH/TIEFMGAeXjBSdiqkKIfiaJDBBK5xnOIy128dKaP7Z0NDjaz6hzFTjNYD/hcxtJIQw==}
     engines: {node: '>=18', pnpm: '>=8'}
     dependencies:
       '@aws-crypto/crc32': 5.2.0
       '@aws-crypto/crc32c': 5.2.0
       bcryptjs: 2.4.3
-      js-md5: 0.8.3
       js-sha3: 0.9.3
       md6-hash: 1.0.0
       whirlpool-hash: 1.1.6
@@ -1082,10 +1081,6 @@ packages:
 
   /itty-router@4.2.2:
     resolution: {integrity: sha512-KegPW0l9SNPadProoFT07AB84uOqLUwzlXQ7HsqkS31WUrxkjdhcemRpTDUuetbMJ89uBtWeQSVoiEmUAu31uw==}
-    dev: false
-
-  /js-md5@0.8.3:
-    resolution: {integrity: sha512-qR0HB5uP6wCuRMrWPTrkMaev7MJZwJuuw4fnwAzRgP4J4/F8RwtodOKpGp4XpqsLBFzzgqIO42efFAyz2Et6KQ==}
     dev: false
 
   /js-sha3@0.9.3:
