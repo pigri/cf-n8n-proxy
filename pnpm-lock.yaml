@@ -12,8 +12,8 @@ dependencies:
     specifier: 0.9.4
     version: 0.9.4
   itty-router:
-    specifier: 4.2.2
-    version: 4.2.2
+    specifier: 5.0.12
+    version: 5.0.12
 
 devDependencies:
   '@cloudflare/workers-types':
@@ -1079,8 +1079,8 @@ packages:
     resolution: {integrity: sha512-o5YpTmov46EbzTrrVpeR9sRK3itWa32VsV9Fv04CzzDm1ZvAXG0RoOGjT9ECOwyipheNf4eLTkstfbRtG8Epgg==}
     dev: false
 
-  /itty-router@4.2.2:
-    resolution: {integrity: sha512-KegPW0l9SNPadProoFT07AB84uOqLUwzlXQ7HsqkS31WUrxkjdhcemRpTDUuetbMJ89uBtWeQSVoiEmUAu31uw==}
+  /itty-router@5.0.12:
+    resolution: {integrity: sha512-mL+QBfOhEeclImvZuZZpJUozsEf3wjlyIxvYNgAtOfcLKiQ23kE7S9ZTooDEbl7tUabU3dbbjtiSfOiCloWT9w==}
     dev: false
 
   /js-sha3@0.9.3:
