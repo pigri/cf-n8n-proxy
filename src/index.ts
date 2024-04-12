@@ -1,10 +1,9 @@
-import { createCors, error, Router } from 'itty-router';
+import { cors, error, AutoRouter } from 'itty-router';
 import { xxhash64 } from 'cf-workers-hash';
 
-const { preflight, corsify } = createCors({
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS', 'HEAD'],
+const { preflight } = cors();
+const router = AutoRouter({
 });
-const router = Router();
 
 async function deduplication(request: Request, env: Env) {
   if (!env.DEDUPLICATION) return false;
@@ -41,17 +40,22 @@ async function proxy (request: Request, env: Env) {
     case 'PUT':
     case 'PATCH':
     case 'DELETE':
-      if (await deduplication(request, env)) {
-        return new Response(null, {
-          status: 202,
-          statusText: 'Accepted',
+      try {
+        if (await deduplication(request, env)) {
+          return new Response(null, {
+            status: 202,
+            statusText: 'Accepted',
+          });
+        }
+        return await fetch(proxyUrl, {
+          method: request.method,
+          body: request.body,
+          headers: request.headers,
         });
+      } catch (e) {
+        console.error(JSON.stringify(e));
+        return error(500);
       }
-      return await fetch(proxyUrl, {
-        method: request.method,
-        body: request.body,
-        headers: request.headers,
-      });
     case 'OPTIONS':
       return new Response(null, {
         status: 204,
@@ -78,12 +82,16 @@ async function proxy (request: Request, env: Env) {
 }
 
 async function createNewRequest(request: Request): Promise<Request> {
-  const { url, method, headers } = request;
-  if (method === 'GET' || method === 'HEAD') {
-    return new Request(url, { method, headers });
-  } else {
-    const body = await request.text();
-    return new Request(url, { method, headers, body });
+  try {
+    const { url, method, headers } = request;
+    if (method === 'GET' || method === 'HEAD') {
+      return new Request(url, { method, headers });
+    } else {
+      const body = await request.text();
+      return new Request(url, { method, headers, body });
+    }
+  } catch (e) {
+    throw e;
   }
 }
 
@@ -102,7 +110,7 @@ type MessageBatch = {
 router
   .all('*', preflight)
   .all('/webhook/:id', async (request: Request, env: Env, _: ExecutionContext) => {
-    try {
+      try {
       const newRequest = await createNewRequest(request);
       const response = await proxy(newRequest, env);
       const responseClone = response.clone();
@@ -138,7 +146,7 @@ router
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-      return router.handle(request, env, ctx).then(corsify);
+      return router.fetch(request, env, ctx);
   },
   async queue(batch: MessageBatch, env: Env): Promise<void> {
     for (const message of batch.messages) {
