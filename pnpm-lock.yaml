@@ -35,8 +35,8 @@ devDependencies:
     specifier: 3.2.5
     version: 3.2.5
   typescript:
-    specifier: 5.4.2
-    version: 5.4.2
+    specifier: 5.4.5
+    version: 5.4.5
   wrangler:
     specifier: 3.50.0
     version: 3.50.0(@cloudflare/workers-types@4.20240314.0)
@@ -1524,7 +1524,7 @@ packages:
       json5: 2.2.3
       normalize-path: 3.0.0
       safe-stable-stringify: 2.4.3
-      typescript: 5.4.2
+      typescript: 5.4.5
     dev: true
 
   /tslib@2.6.2:
@@ -1547,8 +1547,8 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /typescript@5.4.2:
-    resolution: {integrity: sha512-+2/g0Fds1ERlP6JsakQQDXjZdZMM+rqpamFZJEKh4kwTIn3iDkgKtby0CeNd5ATNZ4Ry1ax15TMx0W2V+miizQ==}
+  /typescript@5.4.5:
+    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
     engines: {node: '>=14.17'}
     hasBin: true
     dev: true
