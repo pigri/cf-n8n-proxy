@@ -11,7 +11,7 @@
     "pnpm": "latest",
     "prettier": "3.2.5",
     "typescript": "5.4.5",
-    "wrangler": "3.50.0"
+    "wrangler": "3.60.0"
   },
   "dependencies": {
     "cf-workers-hash": "1.0.3",
