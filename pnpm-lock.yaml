@@ -15,8 +15,8 @@ importers:
         specifier: 0.9.4
         version: 0.9.4
       itty-router:
-        specifier: 5.0.12
-        version: 5.0.12
+        specifier: 5.0.17
+        version: 5.0.17
     devDependencies:
       '@cloudflare/workers-types':
         specifier: 4.20240405.0
@@ -648,8 +648,8 @@ packages:
   itty-fetcher@0.9.4:
     resolution: {integrity: sha512-o5YpTmov46EbzTrrVpeR9sRK3itWa32VsV9Fv04CzzDm1ZvAXG0RoOGjT9ECOwyipheNf4eLTkstfbRtG8Epgg==}
 
-  itty-router@5.0.12:
-    resolution: {integrity: sha512-mL+QBfOhEeclImvZuZZpJUozsEf3wjlyIxvYNgAtOfcLKiQ23kE7S9ZTooDEbl7tUabU3dbbjtiSfOiCloWT9w==}
+  itty-router@5.0.17:
+    resolution: {integrity: sha512-ZHnPI0OOyTTLuNp2FdciejYaK4Wl3ZV3O0yEm8njOGggh/k/ek3BL7X2I5YsCOfc5vLhIJgj3Z4pUtLs6k9Ucg==}
 
   js-sha3@0.9.3:
     resolution: {integrity: sha512-BcJPCQeLg6WjEx3FE591wVAevlli8lxsxm9/FzV4HXkV49TmBH38Yvrpce6fjbADGMKFrBMGTqrVz3qPIZ88Gg==}
@@ -1546,7 +1546,7 @@ snapshots:
 
   itty-fetcher@0.9.4: {}
 
-  itty-router@5.0.12: {}
+  itty-router@5.0.17: {}
 
   js-sha3@0.9.3: {}
 
