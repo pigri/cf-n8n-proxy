@@ -8,7 +8,9 @@ interface Env {
   readonly PROXY_DOMAIN: string;
   readonly WEBHOOK_PATH: string;
   readonly WEBHOOK_TEST_PATH: string;
-  readonly DEDUPLICATION: boolean;
+  readonly DEDUPLICATION_ENABLED: boolean;
   readonly DEDUPLICATION_TTL: number;
   readonly DEDUPLICATION_KV: KVNamespace;
+  readonly RATELIMITING_ENABLED: boolean;
+  readonly RATELIMITER: any;
 }
