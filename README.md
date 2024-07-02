@@ -1,10 +1,20 @@
 # cf-n8n-proxy
 Cloudflare worker for n8n proxy
 
-You need a paid Worker plan ($5 USD) for this service due to the queue.
-Requirements:
+### Why do you need this?
+- You can use this service to protect your n8n instance from DDoS attacks.
+- You can use this service to hide your n8n instance from the public.
+- You can use this service to add rate limiting to your n8n instance.
+- You can use this service to add deduplication to your n8n instance.
+- You can use this service to add a queue to your n8n instance.
+- You can use this service to add a retry mechanism to your n8n instance.
+
+
+### Requirements:
+- You need a paid Worker plan ($5 USD) for this service due to the queue.
 - A cloudflare domain
 
+### Architecture:
 cloudflare -> cloudflare worker -> n8n
 
 ## How to use?
