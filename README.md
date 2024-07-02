@@ -43,8 +43,15 @@ wrangler queues create dlq-cf-n8n-proxy-production -e production
 wrangler kv:namespace create cf-n8n-proxy
 ```
 - Replace `<mykvid>` with the response ID in the wrangler.toml file.
-- Change `DEDUPLICATION=false` to `DEDUPLICATION=true` in the wrangler.toml file.
+- Change `DEDUPLICATION_ENABLED=false` to `DEDUPLICATION_ENABLED=true` in the wrangler.toml file.
+
+### IMPORTANT NOTES ABOUT DEDUPLICATION "As of January 2022, expiration targets that are less than 60 seconds into the future are not supported. This is true for both expiration methods."
 - `DEDUPLICATION_TTL` is optional; by default, it is set to 60 seconds.
+
+### Rate limiting
+- Change `RATE_LIMITING_ENABLED=false` to `RATE_LIMITING_ENABLED=true` in the wrangler.toml file.
+#### Default 100 requests per minute
+simple = { limit = 100, period = 60 }
 
 ### Deploy your service
 ```
