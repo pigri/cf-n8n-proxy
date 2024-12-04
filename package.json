@@ -9,7 +9,7 @@
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "5.2.1",
     "pnpm": "latest",
-    "prettier": "3.4.1",
+    "prettier": "3.4.2",
     "typescript": "5.7.2",
     "wrangler": "3.91.0"
   },
