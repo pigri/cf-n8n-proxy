@@ -1,10 +1,8 @@
 import { AutoRouter, cors, error } from 'itty-router';
 import { xxhash64 } from 'cf-workers-hash';
 
-
 const { preflight } = cors();
-const router = AutoRouter({
-});
+const router = AutoRouter({});
 
 function generateKey(request: Request, body: string): Promise<string> {
   const url = new URL(request.url);
@@ -37,7 +35,6 @@ async function deduplication(request: Request, env: Env, type: OperationType): P
     }
 
     if (type.operation === 'check') {
-
       let value: string | null;
       try {
         value = await env.DEDUPLICATION_KV.get(key);
@@ -84,14 +81,14 @@ async function proxyTest(request: Request, env: Env): Promise<Response> {
   const proxyUrl = `${env.PROXY_DOMAIN}${url.pathname}`;
   switch (request.method) {
     case 'GET':
-      const res=  await fetch(proxyUrl, {
+      const res = await fetch(proxyUrl, {
         method: request.method,
-        headers: request.headers
+        headers: request.headers,
       });
       return new Response(await res.text(), {
         status: res.status,
         statusText: res.statusText,
-        headers: res.headers
+        headers: res.headers,
       });
     case 'POST':
     case 'PUT':
@@ -106,7 +103,7 @@ async function proxyTest(request: Request, env: Env): Promise<Response> {
         return new Response(await res.text(), {
           status: res.status,
           statusText: res.statusText,
-          headers: res.headers
+          headers: res.headers,
         });
       } catch (e) {
         console.error(JSON.stringify(e));
@@ -119,8 +116,8 @@ async function proxyTest(request: Request, env: Env): Promise<Response> {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
           'Access-Control-Allow-Headers': '*',
-          'Access-Control-Max-Age': '86400'
-        }
+          'Access-Control-Max-Age': '86400',
+        },
       });
     case 'HEAD':
       return new Response(null, {
@@ -129,13 +126,12 @@ async function proxyTest(request: Request, env: Env): Promise<Response> {
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD',
           'Access-Control-Allow-Headers': '*',
-          'Access-Control-Max-Age': '86400'
-        }
+          'Access-Control-Max-Age': '86400',
+        },
       });
     default:
       return error(405);
   }
-
 }
 
 async function proxy(request: Request, env: Env): Promise<Response> {
@@ -159,14 +155,13 @@ async function proxy(request: Request, env: Env): Promise<Response> {
       return new Response(await res.text(), {
         status: res.status,
         statusText: res.statusText,
-        headers: res.headers
+        headers: res.headers,
       });
     case 'POST':
     case 'PUT':
     case 'PATCH':
     case 'DELETE':
       try {
-
         if (env.RATELIMITING_ENABLED) {
           const ipAddress = request.headers.get('cf-connecting-ip') || '';
           const { success } = await env.RATELIMITER.limit({ key: ipAddress });
@@ -196,7 +191,7 @@ async function proxy(request: Request, env: Env): Promise<Response> {
           return new Response(null, {
             status: res.status,
             statusText: res.statusText,
-            headers: res.headers
+            headers: res.headers,
           });
         }
         if (res.status == 404) {
@@ -204,7 +199,7 @@ async function proxy(request: Request, env: Env): Promise<Response> {
           return new Response(null, {
             status: res.status,
             statusText: res.statusText,
-            headers: res.headers
+            headers: res.headers,
           });
         }
         if (res.body) {
@@ -212,14 +207,14 @@ async function proxy(request: Request, env: Env): Promise<Response> {
           return new Response(await res.text(), {
             status: res.status,
             statusText: res.statusText,
-            headers: res.headers
+            headers: res.headers,
           });
         } else {
           await deduplication(request, env, { operation: 'save' });
           return new Response(null, {
             status: res.status,
             statusText: res.statusText,
-            headers: res.headers
+            headers: res.headers,
           });
         }
       } catch (e) {
@@ -271,34 +266,43 @@ type Message = {
   method: string;
   headers: Headers;
   body?: string;
-}
+};
 
 type MessageBatch = {
   messages: string;
   retryAll: () => void;
-}
+};
 
 router
   .all('*', preflight)
   .all('/webhook/:id', async (request: Request, env: Env, _: ExecutionContext) => {
-      try {
+    try {
       const newRequest = await createNewRequest(request);
       const response = await proxy(newRequest, env);
       const responseClone = response.clone();
       const status = response.status;
-        if (status >= 502 && status < 503) {
-        await env.ERROR_QUEUE.send(JSON.stringify({
-          url: request.url,
-          method: request.method,
-          headers: request.headers,
-          body: request.body,
-        }));
-        return error(202, 'Request sent to error queue.')
+      if (status >= 502 && status < 503) {
+        await env.ERROR_QUEUE.send(
+          JSON.stringify({
+            url: request.url,
+            method: request.method,
+            headers: request.headers,
+            body: request.body,
+          }),
+        );
+        return error(202, 'Request sent to error queue.');
       }
-      console.info(JSON.stringify({ status: response.status, statusText: response.statusText, headers: response.headers, body: await responseClone.text()}));
+      console.info(
+        JSON.stringify({
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+          body: await responseClone.text(),
+        }),
+      );
       return response;
     } catch (e) {
-        console.error(`Error details: ${JSON.stringify(e, Object.getOwnPropertyNames(e))}`);
+      console.error(`Error details: ${JSON.stringify(e, Object.getOwnPropertyNames(e))}`);
       return error(500, 'Something went wrong');
     }
   })
@@ -306,7 +310,14 @@ router
     try {
       const response = await proxyTest(request, env);
       const responseClone = response.clone();
-      console.info(JSON.stringify({ status: response.status, statusText: response.statusText, headers: response.headers, body: await responseClone.text()}));
+      console.info(
+        JSON.stringify({
+          status: response.status,
+          statusText: response.statusText,
+          headers: response.headers,
+          body: await responseClone.text(),
+        }),
+      );
       return response;
     } catch (e) {
       console.error(JSON.stringify(e));
@@ -317,7 +328,7 @@ router
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-      return router.fetch(request, env, ctx);
+    return router.fetch(request, env, ctx);
   },
   async queue(batch: MessageBatch, env: Env): Promise<void> {
     for (const message of batch.messages) {
@@ -334,5 +345,5 @@ export default {
         batch.retryAll();
       }
     }
-  }
+  },
 };

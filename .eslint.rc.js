@@ -2,7 +2,7 @@ module.exports = {
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 2018, // Allows for the parsing of modern ECMAScript features
-    sourceType: 'module' // Allows for the use of imports
+    sourceType: 'module', // Allows for the use of imports
   },
   root: true,
   env: { node: true, browser: true, serviceworker: true },
@@ -35,8 +35,8 @@ module.exports = {
       {
         argsIgnorePattern: '^_',
         ignoreRestSiblings: true,
-        caughtErrors: 'none'
-      }
+        caughtErrors: 'none',
+      },
     ],
     'no-useless-return': 'error',
     'prefer-promise-reject-errors': 'error',
@@ -49,6 +49,6 @@ module.exports = {
     'template-curly-spacing': ['error', 'never'],
     'func-names': ['error', 'always'],
     'padding-line-between-statements': ['error', { blankLine: 'always', prev: '*', next: 'return' }],
-    'arrow-parens': [2, 'as-needed']
-  }
+    'arrow-parens': [2, 'as-needed'],
+  },
 };
