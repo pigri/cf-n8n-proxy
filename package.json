@@ -7,7 +7,7 @@
     "@cloudflare/workers-types": "4.20250507.0",
     "@types/node": "22.15.14",
     "eslint-config-prettier": "10.1.3",
-    "eslint-plugin-prettier": "5.4.0",
+    "eslint-plugin-prettier": "5.4.1",
     "pnpm": "latest",
     "prettier": "3.5.3",
     "typescript": "5.8.3",
