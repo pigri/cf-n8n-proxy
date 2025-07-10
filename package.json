@@ -5,7 +5,7 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "4.20250703.0",
-    "@types/node": "22.16.0",
+    "@types/node": "22.16.3",
     "eslint-config-prettier": "10.1.5",
     "eslint-plugin-prettier": "5.5.1",
     "pnpm": "latest",
