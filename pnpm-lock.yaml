@@ -12,8 +12,8 @@ importers:
         specifier: 1.0.3
         version: 1.0.3
       itty-fetcher:
-        specifier: 0.9.4
-        version: 0.9.4
+        specifier: 1.0.10
+        version: 1.0.10
       itty-router:
         specifier: 5.0.20
         version: 5.0.20
@@ -733,8 +733,8 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
-  itty-fetcher@0.9.4:
-    resolution: {integrity: sha512-o5YpTmov46EbzTrrVpeR9sRK3itWa32VsV9Fv04CzzDm1ZvAXG0RoOGjT9ECOwyipheNf4eLTkstfbRtG8Epgg==}
+  itty-fetcher@1.0.10:
+    resolution: {integrity: sha512-sxNekddIHnYEiiBNZDfkZUYD05TNGWqVuZbVWxHvgp93VjYdDu/hOuM0ZTUkMQd8vzeCjrxwaOwqr2E8krI/yw==}
 
   itty-router@5.0.20:
     resolution: {integrity: sha512-D27Q+6D3q4Fho3ixmbE+qbu+7N/OqO7ty8Eh62PkyEhg4oBRPV3+HBU3GBXneuc430sRql9Az6qTdCiJKFbHtw==}
@@ -1622,7 +1622,7 @@ snapshots:
 
   isexe@2.0.0: {}
 
-  itty-fetcher@0.9.4: {}
+  itty-fetcher@1.0.10: {}
 
   itty-router@5.0.20: {}
 
