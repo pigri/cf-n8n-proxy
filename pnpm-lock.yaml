@@ -15,8 +15,8 @@ importers:
         specifier: 0.9.4
         version: 0.9.4
       itty-router:
-        specifier: 5.0.18
-        version: 5.0.18
+        specifier: 5.0.20
+        version: 5.0.20
     devDependencies:
       '@cloudflare/workers-types':
         specifier: 4.20250703.0
@@ -32,7 +32,7 @@ importers:
         version: 5.5.1(eslint-config-prettier@10.1.5(eslint@8.57.0))(eslint@8.57.0)(prettier@3.6.2)
       pnpm:
         specifier: latest
-        version: 10.12.4
+        version: 10.13.1
       prettier:
         specifier: 3.6.2
         version: 3.6.2
@@ -736,8 +736,8 @@ packages:
   itty-fetcher@0.9.4:
     resolution: {integrity: sha512-o5YpTmov46EbzTrrVpeR9sRK3itWa32VsV9Fv04CzzDm1ZvAXG0RoOGjT9ECOwyipheNf4eLTkstfbRtG8Epgg==}
 
-  itty-router@5.0.18:
-    resolution: {integrity: sha512-mK3ReOt4ARAGy0V0J7uHmArG2USN2x0zprZ+u+YgmeRjXTDbaowDy3kPcsmQY6tH+uHhDgpWit9Vqmv/4rTXwA==}
+  itty-router@5.0.20:
+    resolution: {integrity: sha512-D27Q+6D3q4Fho3ixmbE+qbu+7N/OqO7ty8Eh62PkyEhg4oBRPV3+HBU3GBXneuc430sRql9Az6qTdCiJKFbHtw==}
 
   js-sha3@0.9.3:
     resolution: {integrity: sha512-BcJPCQeLg6WjEx3FE591wVAevlli8lxsxm9/FzV4HXkV49TmBH38Yvrpce6fjbADGMKFrBMGTqrVz3qPIZ88Gg==}
@@ -840,8 +840,8 @@ packages:
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
-  pnpm@10.12.4:
-    resolution: {integrity: sha512-Xqiw3u2U7WhpHJutTJVUknBcXuuKh++GvGLHSiawN7CP+VcPEIsuTb0d0akYb+qSXlJ/FBxkjoWvRWMQdGgBhA==}
+  pnpm@10.13.1:
+    resolution: {integrity: sha512-N+vxpcejDV+r4MXfRO6NpMllygxa89urKMOhaBtwolYhjQXIHJwNz3Z+9rhVHrW5YAQrntQwDFkkIzY3fgHPrQ==}
     engines: {node: '>=18.12'}
     hasBin: true
 
@@ -1624,7 +1624,7 @@ snapshots:
 
   itty-fetcher@0.9.4: {}
 
-  itty-router@5.0.18: {}
+  itty-router@5.0.20: {}
 
   js-sha3@0.9.3: {}
 
@@ -1728,7 +1728,7 @@ snapshots:
 
   pathe@2.0.3: {}
 
-  pnpm@10.12.4: {}
+  pnpm@10.13.1: {}
 
   prelude-ls@1.2.1: {}
 
