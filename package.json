@@ -14,7 +14,7 @@
     "wrangler": "4.54.0"
   },
   "dependencies": {
-    "cf-workers-hash": "1.0.3",
+    "cf-workers-hash": "1.0.6",
     "itty-fetcher": "1.0.10",
     "itty-router": "5.0.22"
   },

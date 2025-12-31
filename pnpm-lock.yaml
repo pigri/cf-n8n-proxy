@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       cf-workers-hash:
-        specifier: 1.0.3
-        version: 1.0.3
+        specifier: 1.0.6
+        version: 1.0.6
       itty-fetcher:
         specifier: 1.0.10
         version: 1.0.10
@@ -32,7 +32,7 @@ importers:
         version: 5.5.4(eslint-config-prettier@10.1.8(eslint@8.57.0))(eslint@8.57.0)(prettier@3.7.4)
       pnpm:
         specifier: latest
-        version: 10.26.2
+        version: 10.27.0
       prettier:
         specifier: 3.7.4
         version: 3.7.4
@@ -503,8 +503,9 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  bcryptjs@2.4.3:
-    resolution: {integrity: sha512-V/Hy/X9Vt7f3BbPJEi8BdVFMByHi+jNXrYkW3huaybV/kQ0KJg0Y6PkEMbn+zeT+i+SiKZ/HMqJGIIt4LZDqNQ==}
+  bcryptjs@3.0.3:
+    resolution: {integrity: sha512-GlF5wPWnSa/X5LKM1o0wz0suXIINz1iHRLvTS+sLyi7XPbe5ycmYI3DlZqVGZZtDgl4DmasFg7gOB3JYbphV5g==}
+    hasBin: true
 
   blake3-wasm@2.1.5:
     resolution: {integrity: sha512-F1+K8EbfOZE49dtoPtmxUQrpXaBIl3ICvasLh+nJta0xkz+9kF/7uet9fLnwKqhDrmj6g+6K3Tw9yQPUg2ka5g==}
@@ -516,8 +517,8 @@ packages:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
 
-  cf-workers-hash@1.0.3:
-    resolution: {integrity: sha512-VPzTxrW96hZkPNepGHGH/TIEFMGAeXjBSdiqkKIfiaJDBBK5xnOIy128dKaP7Z0NDjaz6hzFTjNYD/hcxtJIQw==}
+  cf-workers-hash@1.0.6:
+    resolution: {integrity: sha512-m4t3mrg6TkpP3viHSAzNe5RcYTRV+WWxH3NpUGvZiVrELKCPV80+53vijSn0IlgE4ZCh1erZ4DaW+1C++y2apQ==}
     engines: {node: '>=18', pnpm: '>=8'}
 
   chalk@4.1.2:
@@ -843,8 +844,8 @@ packages:
   pathe@2.0.3:
     resolution: {integrity: sha512-WUjGcAqP1gQacoQe+OBJsFA7Ld4DyXuUIjZ5cc75cLHvJ7dtNsTugphxIADwspS+AraAUePCKrSVtPLFj/F88w==}
 
-  pnpm@10.26.2:
-    resolution: {integrity: sha512-DjCP8gBfx0EDZvFU9iX2YxqysWsdLnAjhETdaunWMKhILZKkURRN68SSQWiW7Rb3sRSobsaLhASyRDhp5o/9pg==}
+  pnpm@10.27.0:
+    resolution: {integrity: sha512-ctaZ2haxF5wUup5k3HHJpAmIy9xlwmTLDkidt96RfyDc9NZNhyNiXylpulLUt+KhFwaC2awqXcrqq3MrfhbwSg==}
     engines: {node: '>=18.12'}
     hasBin: true
 
@@ -1357,7 +1358,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  bcryptjs@2.4.3: {}
+  bcryptjs@3.0.3: {}
 
   blake3-wasm@2.1.5: {}
 
@@ -1368,11 +1369,11 @@ snapshots:
 
   callsites@3.1.0: {}
 
-  cf-workers-hash@1.0.3:
+  cf-workers-hash@1.0.6:
     dependencies:
       '@aws-crypto/crc32': 5.2.0
       '@aws-crypto/crc32c': 5.2.0
-      bcryptjs: 2.4.3
+      bcryptjs: 3.0.3
       js-sha3: 0.9.3
       md6-hash: 1.0.0
       whirlpool-hash: 1.1.6
@@ -1728,7 +1729,7 @@ snapshots:
 
   pathe@2.0.3: {}
 
-  pnpm@10.26.2: {}
+  pnpm@10.27.0: {}
 
   prelude-ls@1.2.1: {}
 
