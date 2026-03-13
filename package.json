@@ -16,7 +16,7 @@
   "dependencies": {
     "cf-workers-hash": "1.0.6",
     "itty-fetcher": "1.0.10",
-    "itty-router": "5.0.22"
+    "itty-router": "5.0.23"
   },
   "engines": {
     "node": ">=18",
