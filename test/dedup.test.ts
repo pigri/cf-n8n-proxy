@@ -120,4 +120,23 @@ describe('deduplication', () => {
     assert.equal(clones, 0);
     assert.deepEqual([...origin.requests[0].body], [1, 2, 3]);
   });
+
+  test('a 2xx whose body then fails to read is still remembered: the retry is refused', async () => {
+    const kv = stubKv();
+    const { env } = makeEnv({ DEDUPLICATION_ENABLED: true, DEDUPLICATION_KV: kv });
+    origin.reply({
+      status: 200,
+      body: new ReadableStream({
+        start(controller) {
+          controller.error(new Error('origin body failed'));
+        },
+      }),
+    });
+    const first = await callWorker(post([1, 2, 3]), env);
+    assert.equal(first.status, 500);
+    assert.equal(kv.store.size, 1);
+    const retry = await callWorker(post([1, 2, 3]), env);
+    assert.equal(retry.status, 409);
+    assert.equal(origin.requests.length, 1);
+  });
 });
