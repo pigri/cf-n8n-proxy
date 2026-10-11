@@ -4,16 +4,17 @@ import { xxhash64 } from 'cf-workers-hash';
 const { preflight } = cors();
 const router = AutoRouter({});
 
-function generateKey(request: Request, body: string): Promise<string> {
+async function generateKey(request: Request, body: ArrayBuffer): Promise<string> {
   const url = new URL(request.url);
-  const contentLength = new TextEncoder().encode(body).length;
-  return xxhash64(`${request.method}-${url.pathname}-${body}-${contentLength}`);
+  const digest = new Uint8Array(await crypto.subtle.digest('SHA-256', body));
+  const hexDigest = Array.from(digest, (b) => b.toString(16).padStart(2, '0')).join('');
+  return xxhash64(`${request.method}-${url.pathname}-${hexDigest}-${body.byteLength}`);
 }
 
 // Returns the key for this request, or null when it cannot be computed (the request is then not deduplicated).
 async function dedupKey(request: Request, bytes: ArrayBuffer): Promise<string | null> {
   try {
-    return await generateKey(request, new TextDecoder().decode(bytes));
+    return await generateKey(request, bytes);
   } catch (e) {
     console.error(JSON.stringify(e));
     return null;
