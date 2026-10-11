@@ -10,69 +10,32 @@ function generateKey(request: Request, body: string): Promise<string> {
   return xxhash64(`${request.method}-${url.pathname}-${body}-${contentLength}`);
 }
 
-interface OperationType {
-  operation: 'save' | 'delete' | 'check';
+// Returns the key for this request, or null when it cannot be computed (the request is then not deduplicated).
+async function dedupKey(request: Request, bytes: ArrayBuffer): Promise<string | null> {
+  try {
+    return await generateKey(request, new TextDecoder().decode(bytes));
+  } catch (e) {
+    console.error(JSON.stringify(e));
+    return null;
+  }
 }
 
-async function deduplication(request: Request, env: Env, type: OperationType): Promise<boolean> {
+async function isDuplicate(env: Env, key: string): Promise<boolean> {
   try {
-    if (!env.DEDUPLICATION_ENABLED) return false;
-
-    let body: string;
-    try {
-      body = await request.text();
-    } catch (e) {
-      console.error(JSON.stringify(e));
-      return false;
-    }
-
-    let key: string;
-    try {
-      key = await generateKey(request, body);
-    } catch (e) {
-      console.error(JSON.stringify(e));
-      return false;
-    }
-
-    if (type.operation === 'check') {
-      let value: string | null;
-      try {
-        value = await env.DEDUPLICATION_KV.get(key);
-      } catch (e) {
-        console.error(JSON.stringify(e));
-        return false;
-      }
-
-      if (value === null) {
-        console.debug(`Deduplication key not found: ${key}`);
-        return false;
-      }
-
-      console.debug(`Deduplication key found: ${key}`);
-      return true;
-    } else if (type.operation === 'delete') {
-      try {
-        await env.DEDUPLICATION_KV.delete(key);
-        return true;
-      } catch (e) {
-        console.error(JSON.stringify(e));
-        return false;
-      }
-    } else if (type.operation === 'save') {
-      const ttl = env.DEDUPLICATION_TTL || 60;
-      try {
-        await env.DEDUPLICATION_KV.put(key, 'true', { expirationTtl: ttl });
-        return true;
-      } catch (e) {
-        console.error(JSON.stringify(e));
-        return false;
-      }
-    }
-    return false;
+    const value = await env.DEDUPLICATION_KV.get(key);
+    console.debug(`Deduplication key ${value === null ? 'not found' : 'found'}: ${key}`);
+    return value !== null;
   } catch (e) {
-    console.log('deduplication error');
     console.error(JSON.stringify(e));
     return false;
+  }
+}
+
+async function remember(env: Env, key: string): Promise<void> {
+  try {
+    await env.DEDUPLICATION_KV.put(key, 'true', { expirationTtl: env.DEDUPLICATION_TTL || 60 });
+  } catch (e) {
+    console.error(JSON.stringify(e));
   }
 }
 
@@ -161,9 +124,6 @@ async function proxy(request: Request, env: Env): Promise<Response> {
     case 'PUT':
     case 'PATCH':
     case 'DELETE':
-      // fetch() below consumes request.body, so save and delete read their own copies.
-      const saveClone = request.clone();
-      const deleteClone = request.clone();
       try {
         if (env.RATELIMITING_ENABLED) {
           const ipAddress = request.headers.get('cf-connecting-ip') || '';
@@ -175,17 +135,18 @@ async function proxy(request: Request, env: Env): Promise<Response> {
           }
         }
 
-        const requestClone = request.clone();
-        const deduplicationStatus = await deduplication(requestClone, env, { operation: 'check' });
+        // With deduplication on, the body is read once: the key is computed from these bytes, which are also forwarded.
+        const bytes = env.DEDUPLICATION_ENABLED ? await request.arrayBuffer() : null;
+        const key = bytes ? await dedupKey(request, bytes) : null;
 
-        if (deduplicationStatus) {
-          console.error('Deduplication check failed or request is duplicated');
+        if (key !== null && (await isDuplicate(env, key))) {
+          console.error('Request is duplicated');
           return error(409, 'Conflict: Request is considered a duplicate.');
         }
 
         const res = await fetch(proxyUrl, {
           method: request.method,
-          body: request.body,
+          body: bytes ?? request.body,
           headers: request.headers,
         });
 
@@ -205,15 +166,17 @@ async function proxy(request: Request, env: Env): Promise<Response> {
             headers: res.headers,
           });
         }
+        // Only a request the origin accepted is remembered; a failed one can be retried.
+        if (key !== null && res.status >= 200 && res.status < 300) {
+          await remember(env, key);
+        }
         if (res.body) {
-          await deduplication(saveClone, env, { operation: 'save' });
           return new Response(await res.text(), {
             status: res.status,
             statusText: res.statusText,
             headers: res.headers,
           });
         } else {
-          await deduplication(saveClone, env, { operation: 'save' });
           return new Response(null, {
             status: res.status,
             statusText: res.statusText,
@@ -222,7 +185,6 @@ async function proxy(request: Request, env: Env): Promise<Response> {
         }
       } catch (e) {
         console.error(`Error details: ${JSON.stringify(e, Object.getOwnPropertyNames(e))}`);
-        await deduplication(deleteClone, env, { operation: 'delete' });
         return error(500);
       }
     case 'OPTIONS':
