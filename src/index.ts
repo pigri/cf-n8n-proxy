@@ -253,7 +253,7 @@ async function createNewRequest(request: Request): Promise<Request> {
     if (method === 'GET' || method === 'HEAD') {
       return new Request(url, { method, headers });
     } else {
-      const body = await request.text();
+      const body = await request.arrayBuffer();
       return new Request(url, { method, headers, body });
     }
   } catch (e) {
