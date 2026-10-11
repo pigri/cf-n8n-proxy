@@ -139,4 +139,13 @@ describe('deduplication', () => {
     assert.equal(retry.status, 409);
     assert.equal(origin.requests.length, 1);
   });
+
+  test('bodies differing only in invalid UTF-8 bytes are not duplicates', async () => {
+    const { env } = makeEnv({ DEDUPLICATION_ENABLED: true, DEDUPLICATION_KV: stubKv() });
+    const first = await callWorker(post([0x61, 0xff]), env);
+    assert.equal(first.status, 200);
+    const second = await callWorker(post([0x61, 0xfe]), env);
+    assert.equal(second.status, 200);
+    assert.equal(origin.requests.length, 2);
+  });
 });
