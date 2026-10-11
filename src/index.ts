@@ -161,6 +161,9 @@ async function proxy(request: Request, env: Env): Promise<Response> {
     case 'PUT':
     case 'PATCH':
     case 'DELETE':
+      // fetch() below consumes request.body, so save and delete read their own copies.
+      const saveClone = request.clone();
+      const deleteClone = request.clone();
       try {
         if (env.RATELIMITING_ENABLED) {
           const ipAddress = request.headers.get('cf-connecting-ip') || '';
@@ -203,14 +206,14 @@ async function proxy(request: Request, env: Env): Promise<Response> {
           });
         }
         if (res.body) {
-          await deduplication(request, env, { operation: 'save' });
+          await deduplication(saveClone, env, { operation: 'save' });
           return new Response(await res.text(), {
             status: res.status,
             statusText: res.statusText,
             headers: res.headers,
           });
         } else {
-          await deduplication(request, env, { operation: 'save' });
+          await deduplication(saveClone, env, { operation: 'save' });
           return new Response(null, {
             status: res.status,
             statusText: res.statusText,
@@ -219,7 +222,7 @@ async function proxy(request: Request, env: Env): Promise<Response> {
         }
       } catch (e) {
         console.error(`Error details: ${JSON.stringify(e, Object.getOwnPropertyNames(e))}`);
-        await deduplication(request, env, { operation: 'delete' });
+        await deduplication(deleteClone, env, { operation: 'delete' });
         return error(500);
       }
     case 'OPTIONS':
