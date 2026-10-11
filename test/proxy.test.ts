@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, test } from 'node:test';
 import assert from 'node:assert/strict';
-import { callWorker, makeEnv, stubOrigin, worker } from './helpers.ts';
+import { callWorker, makeEnv, stubOrigin, worker, type QueueStub } from './helpers.ts';
 
 describe('proxy smoke tests', () => {
   let origin: ReturnType<typeof stubOrigin>;
@@ -81,5 +81,40 @@ describe('error queue', () => {
     assert.equal(resent.headers.get('content-type'), 'application/json');
     assert.equal(resent.headers.get('x-trace'), 'abc');
     assert.equal(new TextDecoder().decode(resent.body), '{"hello":"wörld"}');
+  });
+
+  test('a body over the queue limit is not queued and the origin 502 reaches the client', async () => {
+    const { env, queue } = makeEnv();
+    (env as unknown as { ERROR_QUEUE: QueueStub }).ERROR_QUEUE.send = async (message: string) => {
+      if (message.length > 128 * 1024) throw new Error('message too large');
+      queue.sent.push(message);
+    };
+    const res = await callWorker(
+      new Request('https://proxy.test/webhook/x', {
+        method: 'POST',
+        body: new Uint8Array(200 * 1024).fill(97),
+      }),
+      env,
+    );
+    assert.equal(res.status, 502);
+    assert.equal(queue.sent.length, 0);
+  });
+
+  test('a 90 KB body with every byte value survives 502, the queue and queue()', async () => {
+    const { env, queue } = makeEnv();
+    const bytes = new Uint8Array(90 * 1024).map((_, i) => i % 256);
+    await callWorker(
+      new Request('https://proxy.test/webhook/x', {
+        method: 'POST',
+        headers: { 'content-type': 'application/octet-stream' },
+        body: bytes,
+      }),
+      env,
+    );
+    assert.equal(queue.sent.length, 1);
+    origin.reply({ status: 200, body: 'ok' });
+    const before = origin.requests.length;
+    await worker.queue({ messages: [{ body: queue.sent[0] }], retryAll: () => assert.fail('retried') } as never, env);
+    assert.deepEqual(origin.requests[before].body, bytes);
   });
 });

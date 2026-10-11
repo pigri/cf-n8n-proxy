@@ -247,13 +247,12 @@ async function proxy(request: Request, env: Env): Promise<Response> {
   }
 }
 
-async function createNewRequest(request: Request): Promise<Request> {
+async function createNewRequest(request: Request, body: Uint8Array | null): Promise<Request> {
   try {
     const { url, method, headers } = request;
-    if (method === 'GET' || method === 'HEAD') {
+    if (body === null) {
       return new Request(url, { method, headers });
     } else {
-      const body = await request.arrayBuffer();
       return new Request(url, { method, headers, body });
     }
   } catch (e) {
@@ -267,6 +266,9 @@ type Message = {
   headers: Record<string, string>;
   body?: string; // base64 of the original body bytes
 };
+
+// Cloudflare Queues rejects messages over 128 KB.
+const MAX_QUEUE_MESSAGE_LENGTH = 128 * 1024;
 
 function toBase64(bytes: Uint8Array): string {
   let binary = '';
@@ -289,20 +291,24 @@ router
   .all('*', preflight)
   .all('/webhook/:id', async (request: Request, env: Env, _: ExecutionContext) => {
     try {
-      const queuedCopy = request.clone();
-      const newRequest = await createNewRequest(request);
+      const isBodyless = request.method === 'GET' || request.method === 'HEAD';
+      const bytes = isBodyless ? null : new Uint8Array(await request.arrayBuffer());
+      const newRequest = await createNewRequest(request, bytes);
       const response = await proxy(newRequest, env);
       const responseClone = response.clone();
       const status = response.status;
       if (status >= 502 && status < 503) {
-        await env.ERROR_QUEUE.send(
-          JSON.stringify({
-            url: request.url,
-            method: request.method,
-            headers: Object.fromEntries(request.headers),
-            body: toBase64(new Uint8Array(await queuedCopy.arrayBuffer())),
-          }),
-        );
+        const message = JSON.stringify({
+          url: request.url,
+          method: request.method,
+          headers: Object.fromEntries(request.headers),
+          body: bytes && bytes.length > 0 ? toBase64(bytes) : undefined,
+        });
+        if (message.length > MAX_QUEUE_MESSAGE_LENGTH) {
+          console.error(`Request too large for the error queue (${message.length} > ${MAX_QUEUE_MESSAGE_LENGTH}); not queued.`);
+          return response;
+        }
+        await env.ERROR_QUEUE.send(message);
         return error(202, 'Request sent to error queue.');
       }
       console.info(
