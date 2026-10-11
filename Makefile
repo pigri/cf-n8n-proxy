@@ -16,7 +16,9 @@ install: ## Install dependencies from the lockfile
 build: ## Bundle the Worker into dist/ without publishing (wrangler --dry-run)
 	pnpm exec wrangler deploy src/index.ts --dry-run --outdir dist --name cf-n8n-proxy --compatibility-date 2024-09-23 --compatibility-flags nodejs_compat
 
+# `node --test` exits 0 when the glob matches nothing, so check that there are tests first.
 test: ## Run the tests (node --test)
+	@find test -name '*.test.ts' 2>/dev/null | grep -q . || { echo "no test/**/*.test.ts files found" >&2; exit 1; }
 	node --test "test/**/*.test.ts"
 
 lint: ## Check formatting with prettier
