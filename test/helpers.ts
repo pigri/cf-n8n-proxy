@@ -6,6 +6,8 @@ export type Recorded = {
   method: string;
   headers: Headers;
   body: Uint8Array;
+  // True when a content-length header was forwarded that differs from the received body length.
+  lengthMismatch: boolean;
 };
 
 export type OriginReply = {
@@ -29,13 +31,17 @@ export function stubOrigin(reply: OriginReply = {}) {
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     // Node's Request needs duplex when the Worker passes a stream body; workerd does not.
     const request = new Request(input, { ...init, duplex: 'half' } as RequestInit);
+    const body = new Uint8Array(await request.arrayBuffer());
+    const declared = request.headers.get('content-length');
     requests.push({
       url: request.url,
       method: request.method,
       headers: request.headers,
-      body: new Uint8Array(await request.arrayBuffer()),
+      body,
+      lengthMismatch: declared !== null && Number(declared) !== body.length,
     });
-    return new Response(config.body ?? null, { status: config.status, headers: config.headers });
+    const noBody = [101, 204, 205, 304].includes(config.status ?? 200);
+    return new Response(noBody ? null : (config.body ?? null), { status: config.status, headers: config.headers });
   }) as typeof fetch;
   return {
     requests,
