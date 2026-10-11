@@ -31,6 +31,7 @@ async function isDuplicate(env: Env, key: string): Promise<boolean> {
   }
 }
 
+// Called before the origin's response body is read, on purpose: the origin accepted the request, so a retry must not run it twice.
 async function remember(env: Env, key: string): Promise<void> {
   try {
     await env.DEDUPLICATION_KV.put(key, 'true', { expirationTtl: env.DEDUPLICATION_TTL || 60 });
