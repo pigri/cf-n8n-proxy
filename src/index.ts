@@ -264,9 +264,21 @@ async function createNewRequest(request: Request): Promise<Request> {
 type Message = {
   url: string;
   method: string;
-  headers: Headers;
-  body?: string;
+  headers: Record<string, string>;
+  body?: string; // base64 of the original body bytes
 };
+
+function toBase64(bytes: Uint8Array): string {
+  let binary = '';
+  for (let i = 0; i < bytes.length; i += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(i, i + 0x8000));
+  }
+  return btoa(binary);
+}
+
+function fromBase64(text: string): Uint8Array {
+  return Uint8Array.from(atob(text), (c) => c.charCodeAt(0));
+}
 
 type MessageBatch = {
   messages: string;
@@ -277,6 +289,7 @@ router
   .all('*', preflight)
   .all('/webhook/:id', async (request: Request, env: Env, _: ExecutionContext) => {
     try {
+      const queuedCopy = request.clone();
       const newRequest = await createNewRequest(request);
       const response = await proxy(newRequest, env);
       const responseClone = response.clone();
@@ -286,8 +299,8 @@ router
           JSON.stringify({
             url: request.url,
             method: request.method,
-            headers: request.headers,
-            body: request.body,
+            headers: Object.fromEntries(request.headers),
+            body: toBase64(new Uint8Array(await queuedCopy.arrayBuffer())),
           }),
         );
         return error(202, 'Request sent to error queue.');
@@ -337,7 +350,7 @@ export default {
         const request = new Request(json.url, {
           method: json.method,
           headers: json.headers,
-          body: json.body || null,
+          body: json.body ? fromBase64(json.body) : null,
         });
         const response = await proxy(request, env);
         console.error(JSON.stringify(response));
