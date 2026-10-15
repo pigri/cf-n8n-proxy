@@ -17,7 +17,7 @@
     "itty-fetcher": "1.0.10",
     "itty-router": "5.0.24"
   },
-  "packageManager": "pnpm@11.22.0",
+  "packageManager": "pnpm@11.28.6",
   "engines": {
     "node": ">=18",
     "pnpm": ">=8"
